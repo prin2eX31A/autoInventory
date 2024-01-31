@@ -30,14 +30,17 @@ def lambda_handler(event, context):
 
     aggregator = 'dcp-config-aggregator-core-command-center'
 
+    def timestamp():
+        return datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")
+
     def get_resource_list_from_config(resource_type, token, accountID, region):
 
         # ResourceTaggingAPI is casted as tagapi
         configapi = session.client('config', region_name=region)
 
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | session created in {region}')
+        print(f'[{timestamp()}] | session created in {region}')
 
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | resource type is {resource_type}')
+        print(f'[{timestamp()}] | resource type is {resource_type}')
 
         try:
 
@@ -49,7 +52,7 @@ def lambda_handler(event, context):
                 NextToken=token
             )
 
-            print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | config aggregator list resources request sent')
+            print(f'[{timestamp()}] | config aggregator list resources request sent')
             #print(resources_list)
             '''
                 expected output:
@@ -98,14 +101,14 @@ def lambda_handler(event, context):
     def search_for_resource_details(resourcelist):
 
         configapi = session.client('config', region_name=region)
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | session created in {region}')
+        print(f'[{timestamp()}] | session created in {region}')
 
         resource_detail = configapi.batch_get_aggregate_resource_config(
             ConfigurationAggregatorName='dcp-config-aggregator-core-command-center',
             ResourceIdentifiers=resourcelist
         )
 
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | config aggregator batch get config request sent')
+        print(f'[{timestamp()}] | config aggregator batch get config request sent')
         # print(resource_detail)
 
         resourceinfo_list = []
@@ -145,12 +148,11 @@ def lambda_handler(event, context):
 
                 # check malform input
                 if re.search(reOfInput, str(item)):
-                    item =
                     writer.writerow(item)
                 else:
-                    print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | Error: {str(item)}')
+                    print(f'[{timestamp()}] | Error: {str(item)}')
 
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | done csv file add content')
+        print(f'[{timestamp()}] | done csv file add content')
 
 
     # ******      main function started      ******
@@ -277,16 +279,16 @@ def lambda_handler(event, context):
             next_Token = get_inventory[1]
 
             if not get_inventory[0]:
-                print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | no resource in this type, resource type = {resource_type}')
-                print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | finish exporting content of {resource_type}')
+                print(f'[{timestamp()}] | no resource in this type, resource type = {resource_type}')
+                print(f'[{timestamp()}] | finish exporting content of {resource_type}')
                 continue
 
             print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | list is not empty')
 
             if next_Token == None:
-                print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | next token is empty')
+                print(f'[{timestamp()}] | next token is empty')
             else:
-                print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | next token is {next_Token}')
+                print(f'[{timestamp()}] | next token is {next_Token}')
 
             for resource in get_inventory[0]:
                 resources.append(resource)
@@ -296,11 +298,11 @@ def lambda_handler(event, context):
             for object in resource_list:
                 final_resource_list.append(object)
 
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | start exporting content of {resource_type} to CSV')
+        print(f'[{timestamp()}] | start exporting content of {resource_type} to CSV')
 
         inventory_csv(final_resource_list)
 
-        print(f'[{datetime.datetime.now(tz=None).strftime("%d %b %Y - %H:%M")}] | finish exporting content of {resource_type}')
+        print(f'[{timestamp()}] | finish exporting content of {resource_type}')
 
 if __name__ == "__main__":
     lambda_handler({}, {})
